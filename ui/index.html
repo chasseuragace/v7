@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Environment-Aware Statement-to-Reality System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Monaco', 'Menlo', monospace;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .system-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            height: calc(100vh - 40px);
+        }
+        
+        .left-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .right-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+        }
+        
+        .panel h2 {
+            color: #00ff88;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .environment-status {
+            min-height: 200px;
+        }
+        
+        .statement-input {
+            min-height: 150px;
+        }
+        
+        .generated-reality {
+            flex: 1;
+        }
+        
+        .system-analysis {
+            min-height: 300px;
+        }
+        
+        .constraints-monitor {
+            min-height: 200px;
+        }
+        
+        .status-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            font-size: 0.9em;
+        }
+        
+        .status-item {
+            background: rgba(0, 255, 136, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+            border-left: 3px solid #00ff88;
+        }
+        
+        .status-label {
+            font-weight: bold;
+            color: #00ff88;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .constraint-bar {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 5px;
+            height: 8px;
+        }
+        
+        .constraint-fill {
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+        
+        .memory-fill { background: linear-gradient(90deg, #ff6b6b, #ee5a52); }
+        .cpu-fill { background: linear-gradient(90deg, #4ecdc4, #44a08d); }
+        .llm-fill { background: linear-gradient(90deg, #45b7d1, #96c93d); }
+        
+        textarea {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 15px;
+            color: #e0e0e0;
+            font-family: inherit;
+            font-size: 14px;
+            resize: none;
+            height: 80px;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #00ff88;
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+        }
+        
+        .generate-btn {
+            background: linear-gradient(135deg, #00ff88, #00cc6a);
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.4);
+        }
+        
+        .generate-btn:disabled {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.3);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .reality-output {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 8px;
+            padding: 15px;
+            height: calc(100% - 60px);
+            overflow-y: auto;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        
+        .analysis-section {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .analysis-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        
+        .analysis-title {
+            color: #00ff88;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .code-block {
+            background: rgba(0, 0, 0, 0.7);
+            border-left: 3px solid #00ff88;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            overflow-x: auto;
+        }
+        
+        .todo-app-frame {
+            width: 100%;
+            height: 400px;
+            border: 2px solid #00ff88;
+            border-radius: 8px;
+            background: white;
+            margin-top: 10px;
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+        
+        .warning {
+            color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.1);
+            padding: 8px;
+            border-radius: 5px;
+            border-left: 3px solid #ff6b6b;
+            margin: 8px 0;
+        }
+        
+        .success {
+            color: #00ff88;
+            background: rgba(0, 255, 136, 0.1);
+            padding: 8px;
+            border-radius: 5px;
+            border-left: 3px solid #00ff88;
+            margin: 8px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="system-container">
+        <div class="left-panel">
+            <div class="panel environment-status">
+                <h2>🌍 Environment Analysis</h2>
+                <div class="status-grid" id="environmentGrid">
+                    <!-- Environment data populated by JavaScript -->
+                </div>
+            </div>
+            
+            <div class="panel statement-input">
+                <h2>💬 Statement Input</h2>
+                <textarea 
+                    id="statementInput" 
+                    placeholder="Enter your statement (e.g., 'Create a todo app with dark theme and local storage')..."
+                ></textarea>
+                <button id="generateBtn" class="generate-btn">Generate Reality</button>
+            </div>
+            
+            <div class="panel constraints-monitor">
+                <h2>⚡ Resource Constraints</h2>
+                <div id="constraintsMonitor">
+                    <!-- Constraints populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="right-panel">
+            <div class="panel system-analysis">
+                <h2>🧠 LLM System Analysis</h2>
+                <div class="reality-output" id="analysisOutput">
+                    <div class="analysis-section">
+                        <div class="analysis-title">System Status:</div>
+                        Ready to process statements and manifest reality...
+                    </div>
+                </div>
+            </div>
+            
+            <div class="panel generated-reality">
+                <h2>🚀 Generated Reality</h2>
+                <div class="reality-output" id="realityOutput">
+                    <div class="analysis-section">
+                        <div class="analysis-title">Generated Application:</div>
+                        No application generated yet. Enter a statement to begin...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class EnvironmentAwareRealitySystem {
+            constructor() {
+                this.environment = {};
+                this.constraints = {};
+                this.llmCapabilities = {
+                    contextWindow: 200000,
+                    reasoning: true,
+                    codeGeneration: true,
+                    architecturalInference: true
+                };
+                this.init();
+            }
+            
+            init() {
+                this.analyzeEnvironment();
+                this.setupEventListeners();
+                this.startConstraintMonitoring();
+            }
+            
+            analyzeEnvironment() {
+                // Simulate environment detection
+                this.environment = {
+                    platform: navigator.platform,
+                    userAgent: navigator.userAgent.split(' ').slice(0, 3).join(' '),
+                    screen: `${screen.width}x${screen.height}`,
+                    memory: navigator.deviceMemory || 'Unknown',
+                    cores: navigator.hardwareConcurrency || 'Unknown',
+                    language: navigator.language,
+                    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                    localStorage: typeof Storage !== 'undefined',
+                    webGL: !!document.createElement('canvas').getContext('webgl'),
+                    serviceWorker: 'serviceWorker' in navigator,
+                    pushNotifications: 'Notification' in window,
+                    geolocation: 'geolocation' in navigator,
+                    battery: 'getBattery' in navigator
+                };
+                
+                this.updateEnvironmentDisplay();
+            }
+            
+            updateEnvironmentDisplay() {
+                const grid = document.getElementById('environmentGrid');
+                grid.innerHTML = Object.entries(this.environment)
+                    .map(([key, value]) => `
+                        <div class="status-item">
+                            <span class="status-label">${key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</span>
+                            <span>${value}</span>
+                        </div>
+                    `).join('');
+            }
+            
+            startConstraintMonitoring() {
+                const monitor = document.getElementById('constraintsMonitor');
+                
+                setInterval(() => {
+                    // Simulate dynamic constraint monitoring
+                    const memoryUsage = Math.random() * 100;
+                    const cpuUsage = Math.random() * 100;
+                    const llmTokens = Math.floor(Math.random() * 50000) + 10000;
+                    
+                    this.constraints = {
+                        memory: {
+                            used: memoryUsage,
+                            limit: 100,
+                            status: memoryUsage > 80 ? 'critical' : memoryUsage > 60 ? 'warning' : 'ok'
+                        },
+                        cpu: {
+                            used: cpuUsage,
+                            limit: 100,
+                            status: cpuUsage > 80 ? 'critical' : cpuUsage > 60 ? 'warning' : 'ok'
+                        },
+                        llm: {
+                            used: llmTokens,
+                            limit: 100000,
+                            status: llmTokens > 80000 ? 'critical' : llmTokens > 60000 ? 'warning' : 'ok'
+                        }
+                    };
+                    
+                    monitor.innerHTML = Object.entries(this.constraints)
+                        .map(([key, constraint]) => `
+                            <div class="status-item">
+                                <span class="status-label">${key.toUpperCase()}</span>
+                                <span>${Math.round(constraint.used)}${key === 'llm' ? ' tokens' : '%'} / ${constraint.limit}${key === 'llm' ? '' : '%'}</span>
+                                <div class="constraint-bar">
+                                    <div class="constraint-fill ${key}-fill" style="width: ${(constraint.used / constraint.limit) * 100}%"></div>
+                                </div>
+                            </div>
+                        `).join('');
+                }, 2000);
+            }
+            
+            setupEventListeners() {
+                const btn = document.getElementById('generateBtn');
+                const input = document.getElementById('statementInput');
+                
+                btn.addEventListener('click', () => this.processStatement());
+                input.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' && e.ctrlKey) this.processStatement();
+                });
+                
+                // Pre-fill with your statement
+                input.value = "Create a todo web app with dark theme, local storage persistence, and real-time updates. It should work well on this browser environment.";
+            }
+            
+            async processStatement() {
+                const statement = document.getElementById('statementInput').value;
+                if (!statement.trim()) return;
+                
+                const btn = document.getElementById('generateBtn');
+                btn.disabled = true;
+                btn.textContent = 'Processing...';
+                
+                try {
+                    await this.analyzeStatement(statement);
+                    await this.generateArchitecture(statement);
+                    await this.manifestReality(statement);
+                } catch (error) {
+                    this.displayError(error);
+                } finally {
+                    btn.disabled = false;
+                    btn.textContent = 'Generate Reality';
+                }
+            }
+            
+            async analyzeStatement(statement) {
+                const analysisOutput = document.getElementById('analysisOutput');
+                
+                // Simulate LLM analysis with environment awareness
+                const analysis = this.performEnvironmentAwareAnalysis(statement);
+                
+                analysisOutput.innerHTML = `
+                    <div class="analysis-section">
+                        <div class="analysis-title">Statement Parsing:</div>
+                        <div>✓ Intent: ${analysis.intent}</div>
+                        <div>✓ Domain: ${analysis.domain}</div>
+                        <div>✓ Complexity: ${analysis.complexity}</div>
+                    </div>
+                    
+                    <div class="analysis-section">
+                        <div class="analysis-title">Environment Constraints Applied:</div>
+                        ${analysis.constraints.map(c => `<div>• ${c}</div>`).join('')}
+                    </div>
+                    
+                    <div class="analysis-section">
+                        <div class="analysis-title">Architectural Decisions:</div>
+                        ${analysis.decisions.map(d => `<div>• ${d}</div>`).join('')}
+                    </div>
+                    
+                    <div class="analysis-section">
+                        <div class="analysis-title">Resource Planning:</div>
+                        <div class="success">Memory: ${analysis.resources.memory}</div>
+                        <div class="success">Compute: ${analysis.resources.compute}</div>
+                        <div class="success">Storage: ${analysis.resources.storage}</div>
+                    </div>
+                `;
+            }
+            
+            performEnvironmentAwareAnalysis(statement) {
+                return {
+                    intent: "Create interactive web application",
+                    domain: "Task Management (Todo App)",
+                    complexity: "Medium - Standard CRUD with persistence",
+                    constraints: [
+                        `Browser: ${this.environment.platform} detected`,
+                        `Screen: ${this.environment.screen} - Responsive design needed`,
+                        `Storage: localStorage available - Perfect for persistence`,
+                        `Memory: ${this.environment.memory}GB - Sufficient for client-side app`,
+                        "No server required - Pure client-side implementation"
+                    ],
+                    decisions: [
+                        "HTML5 + CSS3 + Vanilla JavaScript (no external dependencies)",
+                        "CSS Grid/Flexbox for responsive layout", 
+                        "localStorage for persistence (available in environment)",
+                        "Event-driven architecture for real-time updates",
+                        "Progressive enhancement for various screen sizes"
+                    ],
+                    resources: {
+                        memory: "~2-5MB (well within constraints)",
+                        compute: "Minimal - Event-driven UI updates only",
+                        storage: "~10-50KB localStorage (user data dependent)"
+                    }
+                };
+            }
+            
+            async generateArchitecture(statement) {
+                // Simulate architecture generation delay
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                
+                return {
+                    components: ["TodoManager", "UIController", "StorageManager", "EventSystem"],
+                    patterns: ["MVC", "Observer", "Repository"],
+                    tech_stack: {
+                        frontend: "HTML5, CSS3, Vanilla JavaScript",
+                        storage: "localStorage API",
+                        styling: "CSS Grid, Custom Properties"
+                    }
+                };
+            }
+            
+            async manifestReality(statement) {
+                const realityOutput = document.getElementById('realityOutput');
+                
+                // Generate the actual todo app
+                const todoAppHTML = this.generateTodoApp();
+                
+                realityOutput.innerHTML = `
+                    <div class="analysis-section">
+                        <div class="analysis-title">✨ Reality Manifested Successfully!</div>
+                        <div class="success">Todo Web App generated and deployed instantly</div>
+                        <div class="success">Environment-optimized for ${this.environment.platform}</div>
+                        <div class="success">Using ${Object.keys(this.environment).length} detected environment parameters</div>
+                    </div>
+                    
+                    <div class="analysis-section">
+                        <div class="analysis-title">Generated Code Architecture:</div>
+                        <div class="code-block">
+// Environment-aware implementation
+class TodoApp {
+    constructor(environment) {
+        this.storage = new StorageManager(environment.localStorage);
+        this.ui = new UIController(environment.screen);
+        this.events = new EventSystem();
+    }
+}
+                        </div>
+                    </div>
+                    
+                    <div class="analysis-section">
+                        <div class="analysis-title">Live Application:</div>
+                        <iframe class="todo-app-frame" srcdoc="${this.escapeHtml(todoAppHTML)}" sandbox="allow-scripts"></iframe>
+                    </div>
+                `;
+            }
+            
+            generateTodoApp() {
+                return `
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 20px; background: #1a1a2e; color: #e0e0e0; }
+        .app { max-width: 500px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .add-todo { display: flex; margin-bottom: 20px; }
+        .add-todo input { flex: 1; padding: 12px; border: 2px solid #00ff88; border-radius: 8px 0 0 8px; background: rgba(0,0,0,0.3); color: white; border-right: none; }
+        .add-todo button { padding: 12px 20px; background: #00ff88; border: 2px solid #00ff88; border-radius: 0 8px 8px 0; color: black; font-weight: bold; cursor: pointer; }
+        .todo-item { display: flex; align-items: center; padding: 12px; margin: 8px 0; background: rgba(255,255,255,0.05); border-radius: 8px; border-left: 3px solid #00ff88; }
+        .todo-item.completed { opacity: 0.6; text-decoration: line-through; border-left-color: #666; }
+        .todo-item input[type="checkbox"] { margin-right: 12px; }
+        .todo-text { flex: 1; }
+        .delete-btn { background: #ff6b6b; color: white; border: none; border-radius: 4px; padding: 6px 12px; cursor: pointer; margin-left: 8px; }
+        .stats { text-align: center; margin-top: 20px; font-size: 14px; opacity: 0.7; }
+        .empty-state { text-align: center; padding: 40px; opacity: 0.5; }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <div class="header">
+            <h1>🚀 Environment-Generated Todo App</h1>
+            <p>Manifested from: "${document.getElementById('statementInput').value}"</p>
+        </div>
+        
+        <div class="add-todo">
+            <input type="text" id="todoInput" placeholder="Add a new todo..." />
+            <button onclick="addTodo()">Add</button>
+        </div>
+        
+        <div id="todoList"></div>
+        
+        <div class="stats" id="stats">
+            Environment-aware • LocalStorage enabled • Real-time updates
+        </div>
+    </div>
+    
+    <script>
+        let todos = JSON.parse(localStorage.getItem('todos') || '[]');
+        
+        function renderTodos() {
+            const list = document.getElementById('todoList');
+            if (todos.length === 0) {
+                list.innerHTML = '<div class="empty-state">No todos yet. Add one above!</div>';
+                return;
+            }
+            
+            list.innerHTML = todos.map((todo, index) => \`
+                <div class="todo-item \${todo.completed ? 'completed' : ''}">
+                    <input type="checkbox" \${todo.completed ? 'checked' : ''} onchange="toggleTodo(\${index})">
+                    <span class="todo-text">\${todo.text}</span>
+                    <button class="delete-btn" onclick="deleteTodo(\${index})">Delete</button>
+                </div>
+            \`).join('');
+            
+            updateStats();
+        }
+        
+        function addTodo() {
+            const input = document.getElementById('todoInput');
+            const text = input.value.trim();
+            if (text) {
+                todos.push({ text, completed: false, created: new Date().toISOString() });
+                input.value = '';
+                saveTodos();
+                renderTodos();
+            }
+        }
+        
+        function toggleTodo(index) {
+            todos[index].completed = !todos[index].completed;
+            saveTodos();
+            renderTodos();
+        }
+        
+        function deleteTodo(index) {
+            todos.splice(index, 1);
+            saveTodos();
+            renderTodos();
+        }
+        
+        function saveTodos() {
+            localStorage.setItem('todos', JSON.stringify(todos));
+        }
+        
+        function updateStats() {
+            const completed = todos.filter(t => t.completed).length;
+            const total = todos.length;
+            document.getElementById('stats').innerHTML = 
+                \`\${completed}/\${total} completed • Generated by LLM • Adapted to \${navigator.platform}\`;
+        }
+        
+        // Initialize
+        renderTodos();
+        
+        // Add keyboard support
+        document.getElementById('todoInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addTodo();
+        });
+        
+        // Auto-save demonstration
+        setInterval(() => {
+            const stats = document.getElementById('stats');
+            stats.style.opacity = '0.3';
+            setTimeout(() => stats.style.opacity = '0.7', 500);
+        }, 3000);
+    </script>
+</body>
+</html>
