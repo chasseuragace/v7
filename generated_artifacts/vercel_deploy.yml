@@ -1,0 +1,9 @@
+# VERCEL Deployment Configuration
+# Generated for Todo API application
+# Architecture: microservices
+# Components: 5
+
+name: todo-api-vercel
+runtime: Python
+build_command: pip install -r requirements.txt
+start_command: python main.py

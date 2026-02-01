@@ -1,0 +1,9 @@
+# AWS Deployment Configuration
+# Generated for Todo API application
+# Architecture: microservices
+# Components: 5
+
+name: todo-api-aws
+runtime: Python
+build_command: pip install -r requirements.txt
+start_command: python main.py
